@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Aplikasi - Backend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-robot"></i> Sistem Monitoring Aplikasi</h1>
+            <div class="header-actions">
+                <span class="user-info">Admin</span>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-menu">
+                    <a href="#dashboard" class="menu-item active" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="#add-apps" class="menu-item" onclick="showSection('add-apps')">
+                        <i class="fas fa-plus-circle"></i> Tambah Aplikasi
+                    </a>
+                    <a href="#manage-apps" class="menu-item" onclick="showSection('manage-apps')">
+                        <i class="fas fa-list"></i> Kelola Aplikasi
+                    </a>
+                    <a href="#notification" class="menu-item" onclick="showSection('notification')">
+                        <i class="fas fa-bell"></i> Template Notifikasi
+                    </a>
+                    <a href="#settings" class="menu-item" onclick="showSection('settings')">
+                        <i class="fas fa-cog"></i> Pengaturan
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-apps">0</h3>
+                                <p>Total Aplikasi</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="active-apps">0</h3>
+                                <p>Aplikasi Aktif</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="notified-apps">0</h3>
+                                <p>Notifikasi Terkirim</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activity">
+                        <h3><i class="fas fa-history"></i> Aktivitas Terbaru</h3>
+                        <div id="activity-list" class="activity-list">
+                            <!-- Activity items will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Add Apps Section -->
+                <section id="add-apps" class="content-section">
+                    <h2><i class="fas fa-plus-circle"></i> Tambah Aplikasi</h2>
+                    <div class="form-container">
+                        <div class="input-group">
+                            <label>Format Input (Batch):</label>
+                            <textarea id="batch-input" placeholder="Contoh:
+C-87935 https://play.google.com/store/apps/details?id=com.gplus.barcode
+FBOS-01 https://apps.apple.com/us/app/example-app/id123456789"></textarea>
+                        </div>
+                        <button class="btn-primary" onclick="addApps()"><i class="fas fa-upload"></i> Tambah Aplikasi</button>
+                        
+                        <div class="divider">ATAU</div>
+                        
+                        <div class="single-app-form">
+                            <div class="input-group">
+                                <label>Channel ID:</label>
+                                <input type="text" id="single-channel-id" placeholder="Contoh: C-87935">
+                            </div>
+                            <div class="input-group">
+                                <label>URL Aplikasi:</label>
+                                <input type="text" id="single-app-url" placeholder="https://play.google.com/store/apps/details?id=com.example">
+                            </div>
+                            <button class="btn-secondary" onclick="addSingleApp()"><i class="fas fa-plus"></i> Tambah Satu Aplikasi</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Manage Apps Section -->
+                <section id="manage-apps" class="content-section">
+                    <h2><i class="fas fa-list"></i> Kelola Aplikasi</h2>
+                    <div class="apps-header">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-apps" placeholder="Cari aplikasi...">
+                        </div>
+                        <button class="btn-danger" onclick="deleteSelected()"><i class="fas fa-trash"></i> Hapus Terpilih</button>
+                    </div>
+                    
+                    <div class="apps-list">
+                        <table id="apps-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="select-all"></th>
+                                    <th>Channel ID</th>
+                                    <th>Nama Aplikasi</th>
+                                    <th>Platform</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="apps-table-body">
+                                <!-- Apps will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Notification Section -->
+                <section id="notification" class="content-section">
+                    <h2><i class="fas fa-bell"></i> Template Notifikasi</h2>
+                    <div class="form-container">
+                        <div class="input-group">
+                            <label>Template Pesan Notifikasi:</label>
+                            <textarea id="notification-template" rows="6">包链接：{store_url}
+渠道号: {channel_id}
+状态: 无法打开，包已掉线，请立即关闭广告！</textarea>
+                            <small>Gunakan {store_url}, {channel_id}, dan {app_name} sebagai placeholder</small>
+                        </div>
+                        <button class="btn-primary" onclick="updateNotificationTemplate()"><i class="fas fa-save"></i> Simpan Template</button>
+                        
+                        <div class="preview-section">
+                            <h3>Pratinjau Notifikasi</h3>
+                            <div class="preview-box">
+                                <div id="notification-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <h2><i class="fas fa-cog"></i> Pengaturan</h2>
+                    <div class="form-container">
+                        <div class="input-group">
+                            <label>Interval Monitoring (detik):</label>
+                            <input type="number" id="monitoring-interval" value="30" min="10">
+                        </div>
+                        <div class="input-group">
+                            <label>Chat ID Telegram:</label>
+                            <input type="text" id="telegram-chat-id" placeholder="-1001234567890">
+                        </div>
+                        <button class="btn-primary"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-lock"></i> Masuk ke Sistem</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Password:</label>
+                    <input type="password" id="password" placeholder="Masukkan password">
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
